@@ -4,14 +4,23 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import type { Match, Impression } from "@/lib/types";
 import { api } from "@/lib/api";
 
-export function MatchCard({ match, rank }: { match: Match; rank: number }) {
+interface MatchCardProps {
+  match: Match;
+  rank: number;
+  showConnect?: boolean;
+  opportunityId?: string;
+}
+
+export function MatchCard({ match, rank, showConnect, opportunityId }: MatchCardProps) {
   const scorePercent = Math.round(match.score * 100);
   const embeddingPercent = Math.round(match.embedding_score * 100);
   const hasNetworkBoost = match.network_score > 0;
   const [impression, setImpression] = useState<Impression | null>(null);
+  const [connectStatus, setConnectStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
   useEffect(() => {
     api.users.impression(match.user_id).then(setImpression).catch(() => {});
@@ -23,6 +32,21 @@ export function MatchCard({ match, rank }: { match: Match; rank: number }) {
         ? impression.summary.slice(0, 120) + "..."
         : impression.summary
       : null;
+
+  async function handleConnect() {
+    if (!opportunityId) return;
+    setConnectStatus("sending");
+    try {
+      await api.connectionRequests.create({
+        to_user_id: match.user_id,
+        opportunity_id: opportunityId,
+        match_id: match.id,
+      });
+      setConnectStatus("sent");
+    } catch {
+      setConnectStatus("error");
+    }
+  }
 
   return (
     <Card className="overflow-hidden">
@@ -63,12 +87,27 @@ export function MatchCard({ match, rank }: { match: Match; rank: number }) {
             </Badge>
           ))}
         </div>
-        <div className="flex items-center gap-3 text-xs text-muted-foreground pt-1">
-          <span>Skill fit: {embeddingPercent}%</span>
-          {hasNetworkBoost && (
-            <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
-              Network boost +{Math.round(match.network_score * 100)}%
-            </Badge>
+        <div className="flex items-center justify-between pt-1">
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <span>Skill fit: {embeddingPercent}%</span>
+            {hasNetworkBoost && (
+              <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                Network boost +{Math.round(match.network_score * 100)}%
+              </Badge>
+            )}
+          </div>
+          {showConnect && (
+            <Button
+              size="sm"
+              variant={connectStatus === "sent" ? "outline" : "default"}
+              disabled={connectStatus === "sending" || connectStatus === "sent"}
+              onClick={handleConnect}
+            >
+              {connectStatus === "idle" && "Connect"}
+              {connectStatus === "sending" && "Sending..."}
+              {connectStatus === "sent" && "Request sent"}
+              {connectStatus === "error" && "Try again"}
+            </Button>
           )}
         </div>
       </CardContent>

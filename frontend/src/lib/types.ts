@@ -64,12 +64,45 @@ export interface NetworkData {
   connections: Connection[];
 }
 
+export interface ConnectionRequest {
+  id: string;
+  from_user_id: string;
+  to_user_id: string;
+  opportunity_id: string;
+  match_id: string;
+  status: string;
+  from_user_name: string;
+  to_user_name: string;
+  opportunity_title: string;
+  created_at: string;
+}
+
+export interface NetworkMember {
+  user: User;
+  degree: number;
+  shared_connections: string[];
+  connection_source: string;
+}
+
+export interface LayeredNetwork {
+  first_degree: NetworkMember[];
+  second_degree: NetworkMember[];
+  pending_incoming: number;
+}
+
+export interface SearchResult {
+  user: User;
+  degree: string;
+  shared_connections: string[];
+}
+
 export const OPPORTUNITY_TYPES = [
   { value: "job", label: "Job" },
   { value: "project", label: "Project" },
   { value: "help", label: "Help" },
   { value: "collab", label: "Collaboration" },
   { value: "date", label: "Date" },
+  { value: "fun", label: "Fun" },
 ] as const;
 
 export const TYPE_COLORS: Record<string, string> = {
@@ -78,4 +111,5 @@ export const TYPE_COLORS: Record<string, string> = {
   help: "bg-amber-100 text-amber-800",
   collab: "bg-green-100 text-green-800",
   date: "bg-pink-100 text-pink-800",
+  fun: "bg-orange-100 text-orange-800",
 };

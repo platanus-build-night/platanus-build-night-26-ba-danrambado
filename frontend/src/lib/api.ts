@@ -1,4 +1,14 @@
-import type { AuthResponse, Impression, NetworkData, Opportunity, OpportunityDetail, User } from "./types";
+import type {
+  AuthResponse,
+  ConnectionRequest,
+  Impression,
+  LayeredNetwork,
+  NetworkData,
+  Opportunity,
+  OpportunityDetail,
+  SearchResult,
+  User,
+} from "./types";
 
 const BASE = "/api";
 
@@ -53,6 +63,8 @@ export const api = {
     list: () => fetcher<User[]>("/users"),
     get: (id: string) => fetcher<User>(`/users/${id}`),
     network: (id: string) => fetcher<NetworkData>(`/users/${id}/network`),
+    myNetwork: () => fetcher<LayeredNetwork>("/users/network/me"),
+    search: (q: string) => fetcher<SearchResult[]>(`/users/search?q=${encodeURIComponent(q)}`),
     impression: (id: string) => fetcher<Impression>(`/users/${id}/impression`),
   },
   opportunities: {
@@ -72,5 +84,19 @@ export const api = {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       }),
+  },
+  connectionRequests: {
+    create: (data: { to_user_id: string; opportunity_id: string; match_id: string }) =>
+      fetcher<ConnectionRequest>("/connection-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }),
+    incoming: () => fetcher<ConnectionRequest[]>("/connection-requests/incoming"),
+    outgoing: () => fetcher<ConnectionRequest[]>("/connection-requests/outgoing"),
+    accept: (id: string) =>
+      fetcher<ConnectionRequest>(`/connection-requests/${id}/accept`, { method: "POST" }),
+    decline: (id: string) =>
+      fetcher<ConnectionRequest>(`/connection-requests/${id}/decline`, { method: "POST" }),
   },
 };

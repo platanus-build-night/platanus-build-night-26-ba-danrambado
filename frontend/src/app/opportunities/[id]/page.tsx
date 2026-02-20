@@ -10,10 +10,12 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { MatchCard } from "@/components/match-card";
+import { useCurrentUser } from "@/hooks/use-current-user";
 
 export default function OpportunityDetailPage() {
   const params = useParams();
   const id = params.id as string;
+  const { currentUser } = useCurrentUser();
   const [data, setData] = useState<OpportunityDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -36,6 +38,7 @@ export default function OpportunityDetailPage() {
 
   const { opportunity, matches } = data;
   const colorClass = TYPE_COLORS[opportunity.type] ?? "bg-gray-100 text-gray-800";
+  const isOwner = currentUser?.id === opportunity.posted_by;
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -81,7 +84,13 @@ export default function OpportunityDetailPage() {
         ) : (
           <div className="space-y-4">
             {matches.map((m) => (
-              <MatchCard key={m.id} match={m} rank={m.rank} />
+              <MatchCard
+                key={m.id}
+                match={m}
+                rank={m.rank}
+                showConnect={isOwner}
+                opportunityId={opportunity.id}
+              />
             ))}
           </div>
         )}
