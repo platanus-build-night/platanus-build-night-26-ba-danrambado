@@ -80,3 +80,14 @@ class Feedback:
     opportunity_type: str
     text: str
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+@dataclass
+class ConnectionRequest:
+    id: str
+    from_user_id: str
+    to_user_id: str
+    opportunity_id: str
+    match_id: str
+    status: str = "pending"
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))

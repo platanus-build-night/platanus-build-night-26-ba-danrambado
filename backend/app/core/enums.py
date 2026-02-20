@@ -7,6 +7,7 @@ class OpportunityType(str, Enum):
     HELP = "help"
     COLLAB = "collab"
     DATE = "date"
+    FUN = "fun"
 
 
 class OpenToCategory(str, Enum):
@@ -15,6 +16,7 @@ class OpenToCategory(str, Enum):
     HELP = "help"
     COLLAB = "collab"
     DATE = "date"
+    FUN = "fun"
 
 
 class ConnectionSource(str, Enum):

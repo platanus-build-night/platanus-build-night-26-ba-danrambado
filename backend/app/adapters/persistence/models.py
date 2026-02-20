@@ -86,3 +86,15 @@ class FeedbackModel(Base):
     opportunity_type = Column(String, nullable=False)
     text = Column(Text, nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+class ConnectionRequestModel(Base):
+    __tablename__ = "connection_requests"
+
+    id = Column(String, primary_key=True, default=gen_id)
+    from_user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    to_user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    opportunity_id = Column(String, ForeignKey("opportunities.id"), nullable=False)
+    match_id = Column(String, ForeignKey("matches.id"), nullable=False)
+    status = Column(String, nullable=False, default="pending")
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))

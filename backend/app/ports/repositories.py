@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from app.core.entities import Connection, Feedback, Match, Opportunity, User
+from app.core.entities import Connection, ConnectionRequest, Feedback, Match, Opportunity, User
 
 
 class UserRepository(ABC):
@@ -73,3 +73,23 @@ class FeedbackRepository(ABC):
 
     @abstractmethod
     def has_feedback(self, from_user_id: str, to_user_id: str, opportunity_type: str) -> bool: ...
+
+
+class ConnectionRequestRepository(ABC):
+    @abstractmethod
+    def create(self, req: ConnectionRequest) -> ConnectionRequest: ...
+
+    @abstractmethod
+    def get_by_id(self, request_id: str) -> Optional[ConnectionRequest]: ...
+
+    @abstractmethod
+    def get_incoming(self, user_id: str) -> list[ConnectionRequest]: ...
+
+    @abstractmethod
+    def get_outgoing(self, user_id: str) -> list[ConnectionRequest]: ...
+
+    @abstractmethod
+    def update_status(self, request_id: str, status: str) -> Optional[ConnectionRequest]: ...
+
+    @abstractmethod
+    def exists(self, from_user_id: str, to_user_id: str, opportunity_id: str) -> bool: ...
