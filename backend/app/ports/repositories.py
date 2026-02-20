@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from app.core.entities import Connection, Match, Opportunity, User
+from app.core.entities import Connection, Feedback, Match, Opportunity, User
 
 
 class UserRepository(ABC):
@@ -10,6 +10,9 @@ class UserRepository(ABC):
 
     @abstractmethod
     def get_by_id(self, user_id: str) -> Optional[User]: ...
+
+    @abstractmethod
+    def get_by_email(self, email: str) -> Optional[User]: ...
 
     @abstractmethod
     def create(self, user: User) -> User: ...
@@ -48,3 +51,25 @@ class ConnectionRepository(ABC):
 
     @abstractmethod
     def create_batch(self, connections: list[Connection]) -> list[Connection]: ...
+
+
+class SessionRepository(ABC):
+    @abstractmethod
+    def create(self, session_id: str, user_id: str) -> None: ...
+
+    @abstractmethod
+    def get_user_id(self, session_id: str) -> Optional[str]: ...
+
+    @abstractmethod
+    def delete(self, session_id: str) -> None: ...
+
+
+class FeedbackRepository(ABC):
+    @abstractmethod
+    def get_by_user(self, to_user_id: str) -> list[Feedback]: ...
+
+    @abstractmethod
+    def create(self, feedback: Feedback) -> Feedback: ...
+
+    @abstractmethod
+    def has_feedback(self, from_user_id: str, to_user_id: str, opportunity_type: str) -> bool: ...

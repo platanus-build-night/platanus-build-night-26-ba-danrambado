@@ -20,6 +20,8 @@ class SqlUserRepository(UserRepository):
             skills=json.loads(model.skills),
             interests=json.loads(model.interests),
             open_to=json.loads(model.open_to),
+            email=model.email or "",
+            password_hash=model.password_hash or "",
             created_at=model.created_at,
         )
 
@@ -27,6 +29,8 @@ class SqlUserRepository(UserRepository):
         return UserModel(
             id=entity.id,
             name=entity.name,
+            email=entity.email,
+            password_hash=entity.password_hash,
             bio=entity.bio,
             skills=json.dumps(entity.skills),
             interests=json.dumps(entity.interests),
@@ -40,6 +44,10 @@ class SqlUserRepository(UserRepository):
 
     def get_by_id(self, user_id: str) -> Optional[User]:
         model = self._session.query(UserModel).filter(UserModel.id == user_id).first()
+        return self._to_entity(model) if model else None
+
+    def get_by_email(self, email: str) -> Optional[User]:
+        model = self._session.query(UserModel).filter(UserModel.email == email).first()
         return self._to_entity(model) if model else None
 
     def create(self, user: User) -> User:

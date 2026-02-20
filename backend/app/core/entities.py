@@ -13,6 +13,8 @@ class User:
     skills: list[str]
     interests: list[str]
     open_to: list[str]
+    email: str = ""
+    password_hash: str = ""
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
@@ -68,3 +70,13 @@ class RankedMatch:
     rank: int
     score: float
     explanation: str
+
+
+@dataclass
+class Feedback:
+    id: str
+    from_user_id: str
+    to_user_id: str
+    opportunity_type: str
+    text: str
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))

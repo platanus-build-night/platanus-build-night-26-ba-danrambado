@@ -3,6 +3,30 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
+# --- Auth ---
+
+class RegisterRequest(BaseModel):
+    name: str
+    email: str
+    password: str
+    bio: str = ""
+    skills: list[str] = []
+    interests: list[str] = []
+    open_to: list[str] = []
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class AuthResponse(BaseModel):
+    token: str
+    user: "UserResponse"
+
+
+# --- Users ---
+
 class UserCreate(BaseModel):
     name: str
     bio: str
@@ -14,6 +38,7 @@ class UserCreate(BaseModel):
 class UserResponse(BaseModel):
     id: str
     name: str
+    email: str = ""
     bio: str
     skills: list[str]
     interests: list[str]
@@ -21,6 +46,8 @@ class UserResponse(BaseModel):
     created_at: datetime
     connection_count: int = 0
 
+
+# --- Opportunities ---
 
 class OpportunityCreate(BaseModel):
     title: str
@@ -59,6 +86,8 @@ class OpportunityDetailResponse(BaseModel):
     matches: list[MatchResponse]
 
 
+# --- Network ---
+
 class ConnectionResponse(BaseModel):
     id: str
     user_id: str
@@ -70,3 +99,24 @@ class ConnectionResponse(BaseModel):
 class NetworkResponse(BaseModel):
     user: UserResponse
     connections: list[ConnectionResponse]
+
+
+# --- Feedback ---
+
+class FeedbackCreate(BaseModel):
+    to_user_id: str
+    opportunity_type: str
+    text: str
+
+
+class FeedbackResponse(BaseModel):
+    id: str
+    to_user_id: str
+    opportunity_type: str
+    created_at: datetime
+
+
+class ImpressionResponse(BaseModel):
+    summary: str
+    by_context: dict[str, str] = {}
+    feedback_count: int = 0

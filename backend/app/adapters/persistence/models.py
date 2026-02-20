@@ -16,6 +16,8 @@ class UserModel(Base):
 
     id = Column(String, primary_key=True, default=gen_id)
     name = Column(String, nullable=False)
+    email = Column(String, unique=True, index=True, nullable=False, default="")
+    password_hash = Column(String, nullable=False, default="")
     bio = Column(Text, nullable=False, default="")
     skills = Column(Text, nullable=False, default="[]")  # JSON array
     interests = Column(Text, nullable=False, default="[]")  # JSON array
@@ -64,4 +66,23 @@ class ConnectionModel(Base):
     user_b = Column(String, ForeignKey("users.id"), nullable=False)
     source = Column(String, nullable=False, default="seed")
     strength = Column(Float, nullable=False, default=1.0)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+class SessionModel(Base):
+    __tablename__ = "sessions"
+
+    id = Column(String, primary_key=True, default=gen_id)
+    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+class FeedbackModel(Base):
+    __tablename__ = "feedback"
+
+    id = Column(String, primary_key=True, default=gen_id)
+    from_user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    to_user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    opportunity_type = Column(String, nullable=False)
+    text = Column(Text, nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
