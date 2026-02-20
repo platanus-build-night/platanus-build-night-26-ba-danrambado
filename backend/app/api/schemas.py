@@ -96,9 +96,49 @@ class ConnectionResponse(BaseModel):
     strength: float
 
 
+class NetworkMemberResponse(BaseModel):
+    user: UserResponse
+    degree: int
+    shared_connections: list[str] = []
+    connection_source: str = ""
+
+
 class NetworkResponse(BaseModel):
     user: UserResponse
     connections: list[ConnectionResponse]
+
+
+class LayeredNetworkResponse(BaseModel):
+    first_degree: list[NetworkMemberResponse]
+    second_degree: list[NetworkMemberResponse]
+    pending_incoming: int = 0
+
+
+class SearchResultResponse(BaseModel):
+    user: UserResponse
+    degree: str = "other"
+    shared_connections: list[str] = []
+
+
+# --- Connection Requests ---
+
+class ConnectionRequestCreate(BaseModel):
+    to_user_id: str
+    opportunity_id: str
+    match_id: str
+
+
+class ConnectionRequestResponse(BaseModel):
+    id: str
+    from_user_id: str
+    to_user_id: str
+    opportunity_id: str
+    match_id: str
+    status: str
+    from_user_name: str = ""
+    to_user_name: str = ""
+    opportunity_title: str = ""
+    created_at: datetime
 
 
 # --- Feedback ---

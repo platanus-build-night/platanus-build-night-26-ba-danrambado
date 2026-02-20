@@ -74,6 +74,11 @@ def get_feedback_repo(session: Session = Depends(get_session)):
     return SqlFeedbackRepository(session)
 
 
+def get_connection_request_repo(session: Session = Depends(get_session)):
+    from app.adapters.persistence.connection_request_repo import SqlConnectionRequestRepository
+    return SqlConnectionRequestRepository(session)
+
+
 def get_current_user(
     authorization: Optional[str] = Header(None),
     session: Session = Depends(get_session),
