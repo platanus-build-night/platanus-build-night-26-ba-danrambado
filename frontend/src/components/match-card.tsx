@@ -1,0 +1,53 @@
+import Link from "next/link";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import type { Match } from "@/lib/types";
+
+export function MatchCard({ match, rank }: { match: Match; rank: number }) {
+  const scorePercent = Math.round(match.score * 100);
+  const embeddingPercent = Math.round(match.embedding_score * 100);
+  const hasNetworkBoost = match.network_score > 0;
+
+  return (
+    <Card className="overflow-hidden">
+      <CardHeader className="pb-3">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-bold">
+            {rank}
+          </div>
+          <div className="flex-1 min-w-0">
+            <Link
+              href={`/profiles/${match.user_id}`}
+              className="font-semibold hover:underline text-base"
+            >
+              {match.user_name}
+            </Link>
+            <p className="text-xs text-muted-foreground line-clamp-1">{match.user_bio}</p>
+          </div>
+          <div className="text-right shrink-0">
+            <div className="text-2xl font-bold">{scorePercent}%</div>
+            <div className="text-xs text-muted-foreground">match</div>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <p className="text-sm leading-relaxed">{match.explanation}</p>
+        <div className="flex flex-wrap gap-1.5">
+          {match.user_skills.slice(0, 5).map((s) => (
+            <Badge key={s} variant="secondary" className="text-xs">
+              {s}
+            </Badge>
+          ))}
+        </div>
+        <div className="flex items-center gap-3 text-xs text-muted-foreground pt-1">
+          <span>Skill fit: {embeddingPercent}%</span>
+          {hasNetworkBoost && (
+            <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+              Network boost +{Math.round(match.network_score * 100)}%
+            </Badge>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

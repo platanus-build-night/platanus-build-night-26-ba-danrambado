@@ -1,0 +1,11 @@
+.env
+__pycache__/
+*.pyc
+*.pyo
+backend/data/
+backend/.venv/
+backend/hello.py
+node_modules/
+.next/
+frontend/.next/
+.DS_Store

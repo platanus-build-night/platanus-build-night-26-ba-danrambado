@@ -1,0 +1,16 @@
+[project]
+name = "serendip-lab-backend"
+version = "0.1.0"
+description = "Serendip Lab - AI-powered connection platform"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "sqlalchemy",
+    "pydantic-settings",
+    "anthropic",
+    "chromadb",
+]
+
+[tool.uv]
+dev-dependencies = []

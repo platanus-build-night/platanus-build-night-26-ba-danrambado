@@ -1,0 +1,69 @@
+export interface User {
+  id: string;
+  name: string;
+  bio: string;
+  skills: string[];
+  interests: string[];
+  open_to: string[];
+  created_at: string;
+  connection_count: number;
+}
+
+export interface Opportunity {
+  id: string;
+  title: string;
+  description: string;
+  type: string;
+  posted_by: string;
+  poster_name: string;
+  created_at: string;
+}
+
+export interface Match {
+  id: string;
+  opportunity_id: string;
+  user_id: string;
+  user_name: string;
+  user_bio: string;
+  user_skills: string[];
+  score: number;
+  embedding_score: number;
+  network_score: number;
+  explanation: string;
+  rank: number;
+  created_at: string;
+}
+
+export interface OpportunityDetail {
+  opportunity: Opportunity;
+  matches: Match[];
+}
+
+export interface Connection {
+  id: string;
+  user_id: string;
+  user_name: string;
+  source: string;
+  strength: number;
+}
+
+export interface NetworkData {
+  user: User;
+  connections: Connection[];
+}
+
+export const OPPORTUNITY_TYPES = [
+  { value: "job", label: "Job" },
+  { value: "project", label: "Project" },
+  { value: "help", label: "Help" },
+  { value: "collab", label: "Collaboration" },
+  { value: "date", label: "Date" },
+] as const;
+
+export const TYPE_COLORS: Record<string, string> = {
+  job: "bg-blue-100 text-blue-800",
+  project: "bg-purple-100 text-purple-800",
+  help: "bg-amber-100 text-amber-800",
+  collab: "bg-green-100 text-green-800",
+  date: "bg-pink-100 text-pink-800",
+};
