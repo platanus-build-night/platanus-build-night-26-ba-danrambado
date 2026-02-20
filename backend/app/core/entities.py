@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from app.core.enums import ConnectionSource, OpportunityType
 
 
@@ -13,7 +13,7 @@ class User:
     skills: list[str]
     interests: list[str]
     open_to: list[str]
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 @dataclass
@@ -23,7 +23,7 @@ class Opportunity:
     description: str
     type: OpportunityType
     posted_by: str
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 @dataclass
@@ -36,7 +36,7 @@ class Match:
     network_score: float
     explanation: str
     rank: int
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 @dataclass
@@ -46,7 +46,7 @@ class Connection:
     user_b: str
     source: ConnectionSource
     strength: float = 1.0
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 @dataclass

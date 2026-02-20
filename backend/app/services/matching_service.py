@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from app.core.entities import CandidateScore, Match, Opportunity, User
 from app.ports.ai_port import AIPort
@@ -51,7 +51,7 @@ class MatchingService:
                     network_score=candidate.network_score,
                     explanation=r.explanation,
                     rank=r.rank,
-                    created_at=datetime.utcnow(),
+                    created_at=datetime.now(timezone.utc),
                 )
             )
 

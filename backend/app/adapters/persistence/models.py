@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
@@ -20,7 +20,7 @@ class UserModel(Base):
     skills = Column(Text, nullable=False, default="[]")  # JSON array
     interests = Column(Text, nullable=False, default="[]")  # JSON array
     open_to = Column(Text, nullable=False, default="[]")  # JSON array
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     opportunities = relationship("OpportunityModel", back_populates="poster")
 
@@ -33,7 +33,7 @@ class OpportunityModel(Base):
     description = Column(Text, nullable=False)
     type = Column(String, nullable=False)
     posted_by = Column(String, ForeignKey("users.id"), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     poster = relationship("UserModel", back_populates="opportunities")
     matches = relationship("MatchModel", back_populates="opportunity")
@@ -50,7 +50,7 @@ class MatchModel(Base):
     network_score = Column(Float, nullable=False, default=0.0)
     explanation = Column(Text, nullable=False, default="")
     rank = Column(Integer, nullable=False, default=0)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     opportunity = relationship("OpportunityModel", back_populates="matches")
     user = relationship("UserModel")
@@ -64,4 +64,4 @@ class ConnectionModel(Base):
     user_b = Column(String, ForeignKey("users.id"), nullable=False)
     source = Column(String, nullable=False, default="seed")
     strength = Column(Float, nullable=False, default=1.0)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
