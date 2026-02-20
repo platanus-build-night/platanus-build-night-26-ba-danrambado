@@ -34,9 +34,7 @@ class SqlOpportunityRepository(OpportunityRepository):
 
     def get_all(self) -> list[Opportunity]:
         models = (
-            self._session.query(OpportunityModel)
-            .order_by(OpportunityModel.created_at.desc())
-            .all()
+            self._session.query(OpportunityModel).order_by(OpportunityModel.created_at.desc()).all()
         )
         return [self._to_entity(m) for m in models]
 

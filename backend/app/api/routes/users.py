@@ -11,7 +11,9 @@ router = APIRouter(prefix="/api/users", tags=["users"])
 
 
 @router.get("", response_model=list[UserResponse])
-def list_users(svc: UserService = Depends(get_user_service), conn_repo=Depends(get_connection_repo)):
+def list_users(
+    svc: UserService = Depends(get_user_service), conn_repo=Depends(get_connection_repo)
+):
     users = svc.get_all()
     result = []
     for u in users:
@@ -32,7 +34,11 @@ def list_users(svc: UserService = Depends(get_user_service), conn_repo=Depends(g
 
 
 @router.get("/{user_id}", response_model=UserResponse)
-def get_user(user_id: str, svc: UserService = Depends(get_user_service), conn_repo=Depends(get_connection_repo)):
+def get_user(
+    user_id: str,
+    svc: UserService = Depends(get_user_service),
+    conn_repo=Depends(get_connection_repo),
+):
     user = svc.get_by_id(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -76,7 +82,6 @@ def get_network(
     user_id: str,
     svc: UserService = Depends(get_user_service),
     conn_repo=Depends(get_connection_repo),
-    user_repo=Depends(get_user_service),
 ):
     user = svc.get_by_id(user_id)
     if not user:

@@ -1,7 +1,6 @@
 """Seed script: creates 12 diverse profiles with pre-existing connections."""
 
 import json
-import sys
 import uuid
 
 from app.adapters.embeddings.chroma_adapter import ChromaEmbeddingAdapter
@@ -45,7 +44,13 @@ USERS = [
         "id": "u-valentina",
         "name": "Valentina Cruz",
         "bio": "Growth marketer who helped 10+ startups go from 0 to 10k users. Expert in content, SEO, and community-led growth.",
-        "skills": ["growth marketing", "SEO", "content strategy", "analytics", "community building"],
+        "skills": [
+            "growth marketing",
+            "SEO",
+            "content strategy",
+            "analytics",
+            "community building",
+        ],
         "interests": ["startups", "branding", "yoga", "travel"],
         "open_to": ["job", "project", "collab", "date"],
     },
@@ -61,7 +66,13 @@ USERS = [
         "id": "u-isabella",
         "name": "Isabella Rojas",
         "bio": "Graphic designer and illustrator. Creates brand identities for conscious businesses. Also teaches design workshops.",
-        "skills": ["graphic design", "illustration", "branding", "Adobe Creative Suite", "typography"],
+        "skills": [
+            "graphic design",
+            "illustration",
+            "branding",
+            "Adobe Creative Suite",
+            "typography",
+        ],
         "interests": ["art", "sustainability", "teaching", "ceramics"],
         "open_to": ["project", "collab", "help", "date"],
     },
@@ -77,7 +88,13 @@ USERS = [
         "id": "u-mariana",
         "name": "Mariana López",
         "bio": "Environmental engineer turned sustainability consultant. Helps companies measure and reduce their carbon footprint.",
-        "skills": ["environmental analysis", "carbon accounting", "project management", "data visualization", "public speaking"],
+        "skills": [
+            "environmental analysis",
+            "carbon accounting",
+            "project management",
+            "data visualization",
+            "public speaking",
+        ],
         "interests": ["climate action", "circular economy", "surfing", "documentaries"],
         "open_to": ["collab", "project", "help", "date"],
     },
@@ -93,7 +110,13 @@ USERS = [
         "id": "u-paula",
         "name": "Paula Méndez",
         "bio": "Community organizer and event producer. Runs tech meetups and hackathons. Believes in the power of bringing the right people together.",
-        "skills": ["event management", "community building", "public relations", "partnerships", "social media"],
+        "skills": [
+            "event management",
+            "community building",
+            "public relations",
+            "partnerships",
+            "social media",
+        ],
         "interests": ["networking", "tech community", "dance", "podcasts"],
         "open_to": ["collab", "help", "project", "date"],
     },

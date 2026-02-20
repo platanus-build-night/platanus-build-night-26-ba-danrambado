@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { api } from "@/lib/api";
-import type { User, Opportunity } from "@/lib/types";
 
 export default function Home() {
   const [userCount, setUserCount] = useState(0);

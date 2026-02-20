@@ -35,6 +35,11 @@ docker-compose exec backend uv run python seed.py
 # Open http://localhost:3000
 ```
 
+## Development
+
+- **Lint:** `make lint` (backend: ruff; frontend: eslint)
+- **Tests:** `make test` (backend API tests with pytest)
+
 ## Tech Stack
 
 - **Backend:** Python + FastAPI + SQLAlchemy + SQLite + ChromaDB (managed with uv)
@@ -47,3 +52,10 @@ docker-compose exec backend uv run python seed.py
 Two-phase matching pipeline:
 1. **Phase 1 (fast, ~50ms):** ChromaDB vector search -> filter by compatibility -> network proximity boost -> top 5
 2. **Phase 2 (Claude, ~3s):** Rank top 5 candidates and generate personalized explanations referencing skills and network connections
+
+### Code layout (backend)
+
+- **Entry:** `backend/main.py` → `app.api.app.create_app()` mounts routers and `GET /api/health`.
+- **API:** `app/api/routes/` (users, opportunities), `app/api/dependencies.py`, `app/api/schemas.py`.
+- **Services:** `app/services/` (UserService, OpportunityService, MatchingService).
+- **Adapters:** `app/adapters/persistence/` (SQL repos, DB), `app/adapters/embeddings/` (Chroma), `app/adapters/ai/` (Anthropic). Config in `app/config.py`.

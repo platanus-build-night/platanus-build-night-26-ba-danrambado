@@ -17,9 +17,9 @@ class UserModel(Base):
     id = Column(String, primary_key=True, default=gen_id)
     name = Column(String, nullable=False)
     bio = Column(Text, nullable=False, default="")
-    skills = Column(Text, nullable=False, default="[]")       # JSON array
-    interests = Column(Text, nullable=False, default="[]")     # JSON array
-    open_to = Column(Text, nullable=False, default="[]")       # JSON array
+    skills = Column(Text, nullable=False, default="[]")  # JSON array
+    interests = Column(Text, nullable=False, default="[]")  # JSON array
+    open_to = Column(Text, nullable=False, default="[]")  # JSON array
     created_at = Column(DateTime, default=datetime.utcnow)
 
     opportunities = relationship("OpportunityModel", back_populates="poster")

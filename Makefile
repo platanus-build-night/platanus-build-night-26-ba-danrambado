@@ -1,4 +1,4 @@
-.PHONY: install dev seed dev-backend dev-frontend clean docker-up docker-down docker-seed
+.PHONY: install dev seed dev-backend dev-frontend clean lint test docker-up docker-down docker-seed
 
 install:
 	cd backend && uv sync
@@ -21,6 +21,13 @@ clean:
 	rm -rf backend/data
 	rm -rf frontend/.next
 	rm -rf frontend/node_modules
+
+lint:
+	cd backend && uv run ruff check . && uv run ruff format --check .
+	cd frontend && npm run lint
+
+test:
+	cd backend && uv run pytest -q
 
 docker-up:
 	docker-compose up --build

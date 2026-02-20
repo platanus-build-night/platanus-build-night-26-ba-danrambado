@@ -29,9 +29,7 @@ class MatchingService:
         self._embedding = embedding
         self._ai = ai
 
-    async def find_matches(
-        self, opportunity: Opportunity, top_k: int = 5
-    ) -> list[Match]:
+    async def find_matches(self, opportunity: Opportunity, top_k: int = 5) -> list[Match]:
         candidates = self._phase1_retrieval(opportunity, top_k)
         if not candidates:
             return []
@@ -60,9 +58,7 @@ class MatchingService:
         self._match_repo.create_batch(matches)
         return matches
 
-    def _phase1_retrieval(
-        self, opportunity: Opportunity, top_k: int
-    ) -> list[CandidateScore]:
+    def _phase1_retrieval(self, opportunity: Opportunity, top_k: int) -> list[CandidateScore]:
         query_text = f"{opportunity.title}. {opportunity.description}"
         raw_results = self._embedding.search_similar(query_text, n_results=top_k * 3)
 
@@ -102,7 +98,7 @@ class MatchingService:
                     if other == uid:
                         poster = self._user_repo.get_by_id(opportunity.posted_by)
                         if poster:
-                            shared_connections.append(f"Direct connection")
+                            shared_connections.append("Direct connection")
                         break
             elif uid in second_degree:
                 network_score = SECOND_DEGREE_BOOST
@@ -123,9 +119,7 @@ class MatchingService:
         candidates.sort(key=lambda c: c.combined_score, reverse=True)
         return candidates[:top_k]
 
-    async def _phase2_explain(
-        self, opportunity: Opportunity, candidates: list[CandidateScore]
-    ):
+    async def _phase2_explain(self, opportunity: Opportunity, candidates: list[CandidateScore]):
         return await self._ai.rank_and_explain(opportunity, candidates)
 
     def get_matches(self, opportunity_id: str) -> list[Match]:

@@ -43,11 +43,7 @@ class SqlConnectionRepository(ConnectionRepository):
 
         second_degree: dict[str, list[str]] = {}
         for fid in first_degree_ids:
-            friend_name = (
-                self._session.query(UserModel.name)
-                .filter(UserModel.id == fid)
-                .scalar()
-            )
+            friend_name = self._session.query(UserModel.name).filter(UserModel.id == fid).scalar()
             their_conns = self.get_connections(fid)
             for c in their_conns:
                 other = c.user_b if c.user_a == fid else c.user_a
