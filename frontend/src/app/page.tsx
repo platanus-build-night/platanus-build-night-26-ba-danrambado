@@ -1,29 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { useCurrentUser } from "@/hooks/use-current-user";
-import { api } from "@/lib/api";
 
 export default function Home() {
   const { currentUser, loading } = useCurrentUser();
   const router = useRouter();
-  const [userCount, setUserCount] = useState(0);
-  const [oppCount, setOppCount] = useState(0);
 
   useEffect(() => {
     if (!loading && currentUser) {
       router.replace("/opportunities");
     }
   }, [loading, currentUser, router]);
-
-  useEffect(() => {
-    api.users.list().then((u) => setUserCount(u.length)).catch(() => {});
-    api.opportunities.list().then((o) => setOppCount(o.length)).catch(() => {});
-  }, []);
 
   if (loading || currentUser) return null;
 
@@ -52,27 +43,6 @@ export default function Home() {
             Log In
           </Button>
         </Link>
-      </div>
-
-      <div className="grid grid-cols-3 gap-6 pt-8 w-full max-w-lg">
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <div className="text-3xl font-bold">{userCount}</div>
-            <div className="text-sm text-muted-foreground">People</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <div className="text-3xl font-bold">{oppCount}</div>
-            <div className="text-sm text-muted-foreground">Opportunities</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <div className="text-3xl font-bold">AI</div>
-            <div className="text-sm text-muted-foreground">Matching</div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

@@ -65,36 +65,40 @@ export default function OpportunityDetailPage() {
         </CardContent>
       </Card>
 
-      <Separator />
+      {isOwner && (
+        <>
+          <Separator />
 
-      <div>
-        <h2 className="text-xl font-semibold mb-1">
-          AI Matches ({matches.length})
-        </h2>
-        <p className="text-sm text-muted-foreground mb-4">
-          Ranked by skill fit and network proximity
-        </p>
+          <div>
+            <h2 className="text-xl font-semibold mb-1">
+              AI Matches ({matches.length})
+            </h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              Ranked by skill fit and network proximity
+            </p>
 
-        {matches.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <p className="text-muted-foreground">No matches found for this opportunity.</p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-4">
-            {matches.map((m) => (
-              <MatchCard
-                key={m.id}
-                match={m}
-                rank={m.rank}
-                showConnect={isOwner}
-                opportunityId={opportunity.id}
-              />
-            ))}
+            {matches.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <p className="text-muted-foreground">No matches found for this opportunity.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {matches.map((m) => (
+                  <MatchCard
+                    key={m.id}
+                    match={m}
+                    rank={m.rank}
+                    showConnect
+                    opportunityId={opportunity.id}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 }
