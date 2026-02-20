@@ -1,12 +1,24 @@
 export interface User {
   id: string;
   name: string;
+  email: string;
   bio: string;
   skills: string[];
   interests: string[];
   open_to: string[];
   created_at: string;
   connection_count: number;
+}
+
+export interface AuthResponse {
+  token: string;
+  user: User;
+}
+
+export interface Impression {
+  summary: string;
+  by_context: Record<string, string>;
+  feedback_count: number;
 }
 
 export interface Opportunity {

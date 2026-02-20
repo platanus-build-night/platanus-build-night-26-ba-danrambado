@@ -20,7 +20,7 @@ import {
 
 export default function NewOpportunityPage() {
   const router = useRouter();
-  const { currentUser, users, setCurrentUser } = useCurrentUser();
+  const { currentUser } = useCurrentUser();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState("");
@@ -30,7 +30,7 @@ export default function NewOpportunityPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentUser) {
-      setError("Please select a user first (top right).");
+      setError("You must be logged in to post.");
       return;
     }
     if (!title || !description || !type) {
@@ -66,27 +66,11 @@ export default function NewOpportunityPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="poster">Posting as</Label>
-              <Select
-                value={currentUser?.id ?? ""}
-                onValueChange={(id) => {
-                  const user = users.find((u) => u.id === id) ?? null;
-                  setCurrentUser(user);
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a user..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {users.map((u) => (
-                    <SelectItem key={u.id} value={u.id}>
-                      {u.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {currentUser && (
+              <div className="text-sm text-muted-foreground">
+                Posting as <span className="font-medium text-foreground">{currentUser.name}</span>
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="type">Type</Label>

@@ -1,56 +1,105 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import type { User } from "@/lib/types";
 import { api } from "@/lib/api";
 
-interface CurrentUserContextValue {
+interface AuthContextValue {
   currentUser: User | null;
-  setCurrentUser: (user: User | null) => void;
-  users: User[];
   loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (data: {
+    name: string;
+    email: string;
+    password: string;
+    bio: string;
+    skills: string[];
+    interests: string[];
+    open_to: string[];
+  }) => Promise<void>;
+  logout: () => void;
 }
 
-const CurrentUserContext = createContext<CurrentUserContextValue>({
+const AuthContext = createContext<AuthContextValue>({
   currentUser: null,
-  setCurrentUser: () => {},
-  users: [],
   loading: true,
+  login: async () => {},
+  register: async () => {},
+  logout: () => {},
 });
+
+const PUBLIC_PATHS = ["/", "/login", "/register"];
 
 export function CurrentUserProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
-    api.users.list().then((data) => {
-      setUsers(data);
-      const saved = localStorage.getItem("serendip_current_user");
-      if (saved) {
-        const found = data.find((u) => u.id === saved);
-        if (found) setCurrentUser(found);
-      }
+    const token = localStorage.getItem("serendip_token");
+    if (!token) {
       setLoading(false);
-    });
+      if (!PUBLIC_PATHS.includes(pathname)) {
+        router.replace("/login");
+      }
+      return;
+    }
+    api.auth
+      .me()
+      .then((user) => {
+        setCurrentUser(user);
+        setLoading(false);
+      })
+      .catch(() => {
+        localStorage.removeItem("serendip_token");
+        setLoading(false);
+        if (!PUBLIC_PATHS.includes(pathname)) {
+          router.replace("/login");
+        }
+      });
   }, []);
 
-  const handleSetUser = (user: User | null) => {
-    setCurrentUser(user);
-    if (user) {
-      localStorage.setItem("serendip_current_user", user.id);
-    } else {
-      localStorage.removeItem("serendip_current_user");
-    }
-  };
+  const login = useCallback(async (email: string, password: string) => {
+    const res = await api.auth.login(email, password);
+    localStorage.setItem("serendip_token", res.token);
+    setCurrentUser(res.user);
+    router.push("/opportunities");
+  }, [router]);
+
+  const register = useCallback(
+    async (data: {
+      name: string;
+      email: string;
+      password: string;
+      bio: string;
+      skills: string[];
+      interests: string[];
+      open_to: string[];
+    }) => {
+      const res = await api.auth.register(data);
+      localStorage.setItem("serendip_token", res.token);
+      setCurrentUser(res.user);
+      router.push("/opportunities");
+    },
+    [router]
+  );
+
+  const logout = useCallback(() => {
+    api.auth.logout().catch(() => {});
+    localStorage.removeItem("serendip_token");
+    setCurrentUser(null);
+    router.push("/login");
+  }, [router]);
 
   return (
-    <CurrentUserContext.Provider value={{ currentUser, setCurrentUser: handleSetUser, users, loading }}>
+    <AuthContext.Provider value={{ currentUser, loading, login, register, logout }}>
       {children}
-    </CurrentUserContext.Provider>
+    </AuthContext.Provider>
   );
 }
 
 export function useCurrentUser() {
-  return useContext(CurrentUserContext);
+  return useContext(AuthContext);
 }

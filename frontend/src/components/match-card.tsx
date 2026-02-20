@@ -1,12 +1,28 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { Match } from "@/lib/types";
+import type { Match, Impression } from "@/lib/types";
+import { api } from "@/lib/api";
 
 export function MatchCard({ match, rank }: { match: Match; rank: number }) {
   const scorePercent = Math.round(match.score * 100);
   const embeddingPercent = Math.round(match.embedding_score * 100);
   const hasNetworkBoost = match.network_score > 0;
+  const [impression, setImpression] = useState<Impression | null>(null);
+
+  useEffect(() => {
+    api.users.impression(match.user_id).then(setImpression).catch(() => {});
+  }, [match.user_id]);
+
+  const snippetText =
+    impression && impression.feedback_count > 0 && impression.summary
+      ? impression.summary.length > 120
+        ? impression.summary.slice(0, 120) + "..."
+        : impression.summary
+      : null;
 
   return (
     <Card className="overflow-hidden">
@@ -32,6 +48,14 @@ export function MatchCard({ match, rank }: { match: Match; rank: number }) {
       </CardHeader>
       <CardContent className="space-y-3">
         <p className="text-sm leading-relaxed">{match.explanation}</p>
+
+        {snippetText && (
+          <div className="rounded-md bg-purple-50 border border-purple-200 px-3 py-2">
+            <p className="text-xs font-medium text-purple-700 mb-0.5">Community impression</p>
+            <p className="text-xs text-purple-600">{snippetText}</p>
+          </div>
+        )}
+
         <div className="flex flex-wrap gap-1.5">
           {match.user_skills.slice(0, 5).map((s) => (
             <Badge key={s} variant="secondary" className="text-xs">

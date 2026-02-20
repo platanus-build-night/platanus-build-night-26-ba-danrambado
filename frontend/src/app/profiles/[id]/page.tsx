@@ -1,20 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { api } from "@/lib/api";
-import type { User, NetworkData } from "@/lib/types";
+import type { User, NetworkData, Impression } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { FeedbackForm } from "@/components/feedback-form";
+import { useCurrentUser } from "@/hooks/use-current-user";
 
 export default function ProfileDetailPage() {
   const params = useParams();
   const id = params.id as string;
+  const { currentUser } = useCurrentUser();
   const [user, setUser] = useState<User | null>(null);
   const [network, setNetwork] = useState<NetworkData | null>(null);
+  const [impression, setImpression] = useState<Impression | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const loadImpression = useCallback(() => {
+    api.users.impression(id).then(setImpression).catch(() => {});
+  }, [id]);
 
   useEffect(() => {
     Promise.all([api.users.get(id), api.users.network(id)]).then(([u, n]) => {
@@ -22,11 +30,14 @@ export default function ProfileDetailPage() {
       setNetwork(n);
       setLoading(false);
     });
-  }, [id]);
+    loadImpression();
+  }, [id, loadImpression]);
 
   if (loading || !user) {
     return <div className="h-96 rounded-lg bg-muted animate-pulse" />;
   }
+
+  const isOwnProfile = currentUser?.id === user.id;
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -81,6 +92,45 @@ export default function ProfileDetailPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Community Impression */}
+      <Separator />
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Community Impression</h2>
+        {impression && impression.feedback_count > 0 ? (
+          <Card className="border-purple-200 bg-purple-50/50">
+            <CardContent className="pt-6 space-y-3">
+              <p className="text-sm leading-relaxed">{impression.summary}</p>
+              {Object.keys(impression.by_context).length > 0 && (
+                <div className="space-y-2 pt-2">
+                  {Object.entries(impression.by_context).map(([ctx, text]) => (
+                    <div key={ctx} className="flex gap-2">
+                      <Badge variant="outline" className="capitalize shrink-0">
+                        {ctx}
+                      </Badge>
+                      <span className="text-sm text-muted-foreground">{text}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground pt-1">
+                Based on {impression.feedback_count} anonymous community interaction
+                {impression.feedback_count !== 1 ? "s" : ""}
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <p className="text-muted-foreground text-sm">No community feedback yet.</p>
+        )}
+      </div>
+
+      {/* Feedback Form */}
+      {currentUser && !isOwnProfile && (
+        <>
+          <Separator />
+          <FeedbackForm toUserId={user.id} onSubmitted={loadImpression} />
+        </>
+      )}
 
       {network && network.connections.length > 0 && (
         <>
