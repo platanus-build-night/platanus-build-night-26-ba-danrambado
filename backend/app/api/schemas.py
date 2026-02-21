@@ -125,7 +125,7 @@ class SearchResultResponse(BaseModel):
 class ConnectionRequestCreate(BaseModel):
     to_user_id: str
     opportunity_id: str
-    match_id: str
+    match_id: str = ""
 
 
 class ConnectionRequestResponse(BaseModel):
@@ -133,7 +133,7 @@ class ConnectionRequestResponse(BaseModel):
     from_user_id: str
     to_user_id: str
     opportunity_id: str
-    match_id: str
+    match_id: str = ""
     status: str
     from_user_name: str = ""
     to_user_name: str = ""

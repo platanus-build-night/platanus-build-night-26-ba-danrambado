@@ -2,7 +2,13 @@ import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.api.dependencies import get_ai, get_current_user, get_feedback_repo, get_user_service
+from app.api.dependencies import (
+    get_ai,
+    get_connection_request_repo,
+    get_current_user,
+    get_feedback_repo,
+    get_user_service,
+)
 from app.api.schemas import FeedbackCreate, FeedbackResponse, ImpressionResponse
 from app.core.entities import Feedback, User
 from app.services.reputation_service import ReputationService
@@ -11,11 +17,23 @@ from app.services.user_service import UserService
 router = APIRouter(tags=["feedback"])
 
 
+@router.get("/api/feedback/can-leave/{user_id}")
+def can_leave_feedback(
+    user_id: str,
+    current_user: User = Depends(get_current_user),
+    req_repo=Depends(get_connection_request_repo),
+):
+    if current_user.id == user_id:
+        return {"allowed": False}
+    return {"allowed": req_repo.has_accepted_between(current_user.id, user_id)}
+
+
 @router.post("/api/feedback", response_model=FeedbackResponse, status_code=201)
 def create_feedback(
     body: FeedbackCreate,
     current_user: User = Depends(get_current_user),
     feedback_repo=Depends(get_feedback_repo),
+    req_repo=Depends(get_connection_request_repo),
     user_svc: UserService = Depends(get_user_service),
 ):
     if current_user.id == body.to_user_id:
@@ -25,7 +43,13 @@ def create_feedback(
     if not target:
         raise HTTPException(status_code=404, detail="Target user not found")
 
-    valid_types = ["job", "project", "help", "collab", "date"]
+    if not req_repo.has_accepted_between(current_user.id, body.to_user_id):
+        raise HTTPException(
+            status_code=403,
+            detail="You can only leave feedback after completing an interaction",
+        )
+
+    valid_types = ["job", "project", "help", "collab", "date", "fun"]
     if body.opportunity_type not in valid_types:
         raise HTTPException(
             status_code=400, detail=f"Invalid type. Must be one of: {valid_types}"

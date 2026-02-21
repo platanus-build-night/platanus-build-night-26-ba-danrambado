@@ -91,6 +91,33 @@ def get_outgoing(
     return [_to_response(r, user_svc, opp_svc) for r in reqs]
 
 
+@router.get("/check")
+def check_request(
+    opportunity_id: str,
+    to_user_id: str,
+    current_user: User = Depends(get_current_user),
+    req_repo=Depends(get_connection_request_repo),
+):
+    return {"exists": req_repo.exists(current_user.id, to_user_id, opportunity_id)}
+
+
+@router.get("/by-opportunity/{opportunity_id}", response_model=list[ConnectionRequestResponse])
+def get_by_opportunity(
+    opportunity_id: str,
+    current_user: User = Depends(get_current_user),
+    req_repo=Depends(get_connection_request_repo),
+    user_svc: UserService = Depends(get_user_service),
+    opp_svc: OpportunityService = Depends(get_opportunity_service),
+):
+    opp = opp_svc.get_by_id(opportunity_id)
+    if not opp:
+        raise HTTPException(status_code=404, detail="Opportunity not found")
+    if opp.posted_by != current_user.id:
+        raise HTTPException(status_code=403, detail="Only the poster can view these requests")
+    reqs = req_repo.get_by_opportunity(opportunity_id)
+    return [_to_response(r, user_svc, opp_svc) for r in reqs]
+
+
 @router.post("/{request_id}/accept", response_model=ConnectionRequestResponse)
 def accept_request(
     request_id: str,

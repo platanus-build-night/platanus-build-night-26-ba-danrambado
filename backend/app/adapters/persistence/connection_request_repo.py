@@ -17,7 +17,7 @@ class SqlConnectionRequestRepository(ConnectionRequestRepository):
             from_user_id=model.from_user_id,
             to_user_id=model.to_user_id,
             opportunity_id=model.opportunity_id,
-            match_id=model.match_id,
+            match_id=model.match_id or "",
             status=model.status,
             created_at=model.created_at,
         )
@@ -28,7 +28,7 @@ class SqlConnectionRequestRepository(ConnectionRequestRepository):
             from_user_id=req.from_user_id,
             to_user_id=req.to_user_id,
             opportunity_id=req.opportunity_id,
-            match_id=req.match_id,
+            match_id=req.match_id or None,
             status=req.status,
             created_at=req.created_at,
         )
@@ -79,6 +79,15 @@ class SqlConnectionRequestRepository(ConnectionRequestRepository):
         self._session.refresh(model)
         return self._to_entity(model)
 
+    def get_by_opportunity(self, opportunity_id: str) -> list[ConnectionRequest]:
+        models = (
+            self._session.query(ConnectionRequestModel)
+            .filter(ConnectionRequestModel.opportunity_id == opportunity_id)
+            .order_by(ConnectionRequestModel.created_at.desc())
+            .all()
+        )
+        return [self._to_entity(m) for m in models]
+
     def exists(self, from_user_id: str, to_user_id: str, opportunity_id: str) -> bool:
         count = (
             self._session.query(ConnectionRequestModel)
@@ -86,6 +95,24 @@ class SqlConnectionRequestRepository(ConnectionRequestRepository):
                 ConnectionRequestModel.from_user_id == from_user_id,
                 ConnectionRequestModel.to_user_id == to_user_id,
                 ConnectionRequestModel.opportunity_id == opportunity_id,
+            )
+            .count()
+        )
+        return count > 0
+
+    def has_accepted_between(self, user_a_id: str, user_b_id: str) -> bool:
+        from sqlalchemy import or_
+
+        count = (
+            self._session.query(ConnectionRequestModel)
+            .filter(
+                ConnectionRequestModel.status == "accepted",
+                or_(
+                    (ConnectionRequestModel.from_user_id == user_a_id)
+                    & (ConnectionRequestModel.to_user_id == user_b_id),
+                    (ConnectionRequestModel.from_user_id == user_b_id)
+                    & (ConnectionRequestModel.to_user_id == user_a_id),
+                ),
             )
             .count()
         )

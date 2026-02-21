@@ -107,10 +107,12 @@ def get_my_network(
 ):
     conns = conn_repo.get_connections(current_user.id)
     first_degree: list[NetworkMemberResponse] = []
-    first_degree_ids = set()
+    first_degree_ids: set[str] = set()
 
     for c in conns:
         other_id = c.user_b if c.user_a == current_user.id else c.user_a
+        if other_id in first_degree_ids:
+            continue
         first_degree_ids.add(other_id)
         other = svc.get_by_id(other_id)
         if other:
