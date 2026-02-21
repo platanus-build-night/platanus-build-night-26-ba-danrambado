@@ -99,3 +99,6 @@ class ConnectionRequestRepository(ABC):
 
     @abstractmethod
     def has_accepted_between(self, user_a_id: str, user_b_id: str) -> bool: ...
+
+    @abstractmethod
+    def get_accepted_between(self, user_a_id: str, user_b_id: str) -> list[ConnectionRequest]: ...

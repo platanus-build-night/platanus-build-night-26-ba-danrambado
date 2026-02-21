@@ -7,14 +7,58 @@ from app.api.dependencies import (
     get_connection_request_repo,
     get_current_user,
     get_feedback_repo,
+    get_opportunity_service,
     get_user_service,
 )
-from app.api.schemas import FeedbackCreate, FeedbackResponse, ImpressionResponse
+from app.api.schemas import (
+    ExperienceResponse,
+    ExperiencesResponse,
+    FeedbackCreate,
+    FeedbackResponse,
+    ImpressionResponse,
+)
 from app.core.entities import Feedback, User
+from app.services.opportunity_service import OpportunityService
 from app.services.reputation_service import ReputationService
 from app.services.user_service import UserService
 
 router = APIRouter(tags=["feedback"])
+
+
+@router.get("/api/feedback/experiences/{to_user_id}", response_model=ExperiencesResponse)
+def get_experiences(
+    to_user_id: str,
+    current_user: User = Depends(get_current_user),
+    req_repo=Depends(get_connection_request_repo),
+    feedback_repo=Depends(get_feedback_repo),
+    opp_svc: OpportunityService = Depends(get_opportunity_service),
+):
+    if current_user.id == to_user_id:
+        return ExperiencesResponse(experiences=[])
+
+    reqs = req_repo.get_accepted_between(current_user.id, to_user_id)
+    seen_opp_ids: set[str] = set()
+    experiences: list[ExperienceResponse] = []
+
+    for req in reqs:
+        if req.opportunity_id in seen_opp_ids:
+            continue
+        seen_opp_ids.add(req.opportunity_id)
+        opp = opp_svc.get_by_id(req.opportunity_id)
+        if not opp:
+            continue
+        opp_type = opp.type.value
+        if feedback_repo.has_feedback(current_user.id, to_user_id, opp_type):
+            continue
+        experiences.append(
+            ExperienceResponse(
+                opportunity_id=opp.id,
+                opportunity_type=opp_type,
+                opportunity_title=opp.title,
+            )
+        )
+
+    return ExperiencesResponse(experiences=experiences)
 
 
 @router.get("/api/feedback/can-leave/{user_id}")

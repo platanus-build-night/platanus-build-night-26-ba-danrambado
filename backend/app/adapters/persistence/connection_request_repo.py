@@ -117,3 +117,21 @@ class SqlConnectionRequestRepository(ConnectionRequestRepository):
             .count()
         )
         return count > 0
+
+    def get_accepted_between(self, user_a_id: str, user_b_id: str) -> list[ConnectionRequest]:
+        from sqlalchemy import or_
+
+        models = (
+            self._session.query(ConnectionRequestModel)
+            .filter(
+                ConnectionRequestModel.status == "accepted",
+                or_(
+                    (ConnectionRequestModel.from_user_id == user_a_id)
+                    & (ConnectionRequestModel.to_user_id == user_b_id),
+                    (ConnectionRequestModel.from_user_id == user_b_id)
+                    & (ConnectionRequestModel.to_user_id == user_a_id),
+                ),
+            )
+            .all()
+        )
+        return [self._to_entity(m) for m in models]

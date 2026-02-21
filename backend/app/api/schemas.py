@@ -160,3 +160,13 @@ class ImpressionResponse(BaseModel):
     summary: str
     by_context: dict[str, str] = {}
     feedback_count: int = 0
+
+
+class ExperienceResponse(BaseModel):
+    opportunity_id: str
+    opportunity_type: str
+    opportunity_title: str
+
+
+class ExperiencesResponse(BaseModel):
+    experiences: list[ExperienceResponse]
