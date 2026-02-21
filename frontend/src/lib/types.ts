@@ -69,7 +69,7 @@ export interface ConnectionRequest {
   from_user_id: string;
   to_user_id: string;
   opportunity_id: string;
-  match_id: string;
+  match_id?: string;
   status: string;
   from_user_name: string;
   to_user_name: string;

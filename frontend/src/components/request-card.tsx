@@ -58,7 +58,12 @@ export function RequestCard({ request, type, onAction }: RequestCardProps) {
             </Link>
             <p className="text-xs text-muted-foreground line-clamp-1">
               {type === "incoming" ? "wants to connect" : "request sent"} via{" "}
-              <span className="font-medium">{request.opportunity_title}</span>
+              <Link
+                href={`/opportunities/${request.opportunity_id}`}
+                className="font-medium text-foreground hover:underline"
+              >
+                {request.opportunity_title}
+              </Link>
             </p>
           </div>
           <div className="flex items-center gap-2 shrink-0">

@@ -43,8 +43,9 @@ export function MatchCard({ match, rank, showConnect, opportunityId }: MatchCard
         match_id: match.id,
       });
       setConnectStatus("sent");
-    } catch {
-      setConnectStatus("error");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "";
+      setConnectStatus(msg.includes("already sent") ? "sent" : "error");
     }
   }
 

@@ -19,6 +19,7 @@ export default function ProfileDetailPage() {
   const [network, setNetwork] = useState<NetworkData | null>(null);
   const [impression, setImpression] = useState<Impression | null>(null);
   const [loading, setLoading] = useState(true);
+  const [canLeaveFeedback, setCanLeaveFeedback] = useState(false);
 
   const loadImpression = useCallback(() => {
     api.users.impression(id).then(setImpression).catch(() => {});
@@ -32,6 +33,12 @@ export default function ProfileDetailPage() {
     });
     loadImpression();
   }, [id, loadImpression]);
+
+  useEffect(() => {
+    if (currentUser && currentUser.id !== id) {
+      api.feedback.canLeave(id).then((r) => setCanLeaveFeedback(r.allowed)).catch(() => {});
+    }
+  }, [currentUser, id]);
 
   if (loading || !user) {
     return <div className="h-96 rounded-lg bg-muted animate-pulse" />;
@@ -128,7 +135,13 @@ export default function ProfileDetailPage() {
       {currentUser && !isOwnProfile && (
         <>
           <Separator />
-          <FeedbackForm toUserId={user.id} onSubmitted={loadImpression} />
+          {canLeaveFeedback ? (
+            <FeedbackForm toUserId={user.id} onSubmitted={loadImpression} />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              You can leave feedback after completing an interaction with this person.
+            </p>
+          )}
         </>
       )}
 
