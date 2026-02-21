@@ -86,6 +86,10 @@ export const api = {
       }),
     canLeave: (userId: string) =>
       fetcher<{ allowed: boolean }>(`/feedback/can-leave/${userId}`),
+    experiences: (toUserId: string) =>
+      fetcher<{ experiences: Array<{ opportunity_id: string; opportunity_type: string; opportunity_title: string }> }>(
+        `/feedback/experiences/${toUserId}`
+      ),
   },
   connectionRequests: {
     create: (data: { to_user_id: string; opportunity_id: string; match_id?: string }) =>

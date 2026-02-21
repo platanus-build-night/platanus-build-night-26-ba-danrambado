@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,13 +15,20 @@ import {
 import { VoiceInput } from "@/components/voice-input";
 import { api } from "@/lib/api";
 
-const CONTEXT_OPTIONS = [
-  { value: "project", label: "Project" },
-  { value: "collab", label: "Collaboration" },
-  { value: "date", label: "Date" },
-  { value: "help", label: "Help / Mentoring" },
-  { value: "job", label: "Job / Work" },
-];
+const TYPE_LABELS: Record<string, string> = {
+  project: "Project",
+  collab: "Collaboration",
+  date: "Date",
+  help: "Help / Mentoring",
+  job: "Job / Work",
+  fun: "Fun",
+};
+
+interface Experience {
+  opportunity_id: string;
+  opportunity_type: string;
+  opportunity_title: string;
+}
 
 interface FeedbackFormProps {
   toUserId: string;
@@ -29,15 +36,33 @@ interface FeedbackFormProps {
 }
 
 export function FeedbackForm({ toUserId, onSubmitted }: FeedbackFormProps) {
-  const [context, setContext] = useState("");
+  const [experiences, setExperiences] = useState<Experience[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedId, setSelectedId] = useState("");
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    api.feedback
+      .experiences(toUserId)
+      .then((r) => {
+        setExperiences(r.experiences);
+        if (r.experiences.length === 1) {
+          setSelectedId(r.experiences[0].opportunity_id);
+        }
+      })
+      .catch(() => setExperiences([]))
+      .finally(() => setLoading(false));
+  }, [toUserId]);
+
+  const selectedExp = experiences.find((e) => e.opportunity_id === selectedId);
+  const opportunityType = selectedExp?.opportunity_type ?? "";
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!context || !text.trim()) {
+    if (!opportunityType || !text.trim()) {
       setError("Please select a context and write your feedback.");
       return;
     }
@@ -47,7 +72,7 @@ export function FeedbackForm({ toUserId, onSubmitted }: FeedbackFormProps) {
     try {
       await api.feedback.create({
         to_user_id: toUserId,
-        opportunity_type: context,
+        opportunity_type: opportunityType,
         text: text.trim(),
       });
       setSubmitted(true);
@@ -71,6 +96,35 @@ export function FeedbackForm({ toUserId, onSubmitted }: FeedbackFormProps) {
     );
   }
 
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Leave anonymous feedback</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Share your experience. Your identity will not be revealed.
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="h-10 rounded bg-muted animate-pulse mb-4" />
+          <div className="h-24 rounded bg-muted animate-pulse" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (experiences.length === 0) {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <p className="text-sm text-muted-foreground">
+            No interactions to leave feedback for.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -83,18 +137,25 @@ export function FeedbackForm({ toUserId, onSubmitted }: FeedbackFormProps) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label>Context of your interaction</Label>
-            <Select value={context} onValueChange={setContext}>
-              <SelectTrigger>
-                <SelectValue placeholder="How did you interact?" />
-              </SelectTrigger>
-              <SelectContent>
-                {CONTEXT_OPTIONS.map((o) => (
-                  <SelectItem key={o.value} value={o.value}>
-                    {o.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {experiences.length === 1 ? (
+              <div className="rounded-md border px-3 py-2 text-sm bg-muted/50">
+                {TYPE_LABELS[experiences[0].opportunity_type] ?? experiences[0].opportunity_type} —{" "}
+                {experiences[0].opportunity_title}
+              </div>
+            ) : (
+              <Select value={selectedId} onValueChange={setSelectedId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select the interaction..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {experiences.map((e) => (
+                    <SelectItem key={e.opportunity_id} value={e.opportunity_id}>
+                      {TYPE_LABELS[e.opportunity_type] ?? e.opportunity_type}: {e.opportunity_title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           <div className="space-y-2">
