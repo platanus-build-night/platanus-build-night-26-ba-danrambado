@@ -1,4 +1,4 @@
-.PHONY: install dev seed dev-backend dev-frontend clean lint test docker-up docker-down docker-seed
+.PHONY: install dev seed dev-backend dev-frontend clean lint test docker-up docker-down docker-seed prod-up prod-down prod-build prod-seed prod-logs
 
 install:
 	cd backend && uv sync
@@ -37,3 +37,19 @@ docker-down:
 
 docker-seed:
 	docker-compose exec backend uv run python seed.py
+
+# ── Production (VPS) ──────────────────────────────────────────────────────────
+prod-up:
+	docker compose -f docker-compose.prod.yml up -d --build
+
+prod-down:
+	docker compose -f docker-compose.prod.yml down
+
+prod-build:
+	docker compose -f docker-compose.prod.yml build
+
+prod-seed:
+	docker compose -f docker-compose.prod.yml exec backend uv run python seed.py
+
+prod-logs:
+	docker compose -f docker-compose.prod.yml logs -f
